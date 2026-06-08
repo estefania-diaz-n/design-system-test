@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import '@tefi/design-system/dist/style.css';
+import "@tefi/design-system/styles.css";
 import './globals.css';
 
 export const metadata: Metadata = {
