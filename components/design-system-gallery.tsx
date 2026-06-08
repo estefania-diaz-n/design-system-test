@@ -1,6 +1,6 @@
 'use client';
 
-import { Component, createElement, type ComponentType, type ErrorInfo, type ReactNode } from 'react';
+import { Component, createElement, useEffect, useState, type ComponentType, type ErrorInfo } from 'react';
 import * as DesignSystem from '@tefi/design-system';
 import {
   createComponentExample,
@@ -59,6 +59,7 @@ class ComponentPreviewBoundary extends Component<ComponentPreviewProps, Componen
     );
   }
 }
+
 function getExportedComponents(): ExportedComponent[] {
   return Object.entries(DesignSystem)
     .flatMap(([name, value]) => {
@@ -73,12 +74,10 @@ function getExportedComponents(): ExportedComponent[] {
         },
       ];
     })
-    .sort((componentA, componentB) =>
-      componentA.example.name.localeCompare(componentB.example.name)
-    );
+    .sort((componentA, componentB) => componentA.example.name.localeCompare(componentB.example.name));
 }
 
-function groupByCategory(components: ExportedComponent[]) {
+function groupByCategory(components: ExportedComponent[]): Array<[DesignSystemCategory, ExportedComponent[]]> {
   const groups = components.reduce<Map<DesignSystemCategory, ExportedComponent[]>>((accumulator, component) => {
     const current = accumulator.get(component.example.category) ?? [];
     current.push(component);
@@ -126,9 +125,14 @@ function CodeExample({ example }: { example: ComponentExample }) {
 }
 
 export function DesignSystemGallery() {
+  const [isMounted, setIsMounted] = useState(false);
   const components = getExportedComponents();
   const groupedComponents = groupByCategory(components);
   const nonComponentExports = Object.keys(DesignSystem).filter((name) => !components.some((item) => item.example.name === name));
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   return (
     <div className="ds-gallery">
@@ -170,7 +174,13 @@ export function DesignSystemGallery() {
                     <p>{component.example.description}</p>
                   </header>
 
-                  <ComponentPreviewBoundary component={component} />
+                  {isMounted ? (
+                    <ComponentPreviewBoundary component={component} />
+                  ) : (
+                    <div className="ds-preview-fallback" role="note">
+                      La vista previa de {component.example.name} se renderiza en el cliente.
+                    </div>
+                  )}
 
                   <details>
                     <summary>Props del ejemplo</summary>
