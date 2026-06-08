@@ -58,6 +58,7 @@ class ComponentPreviewBoundary extends Component<ComponentPreviewProps, Componen
       </div>
     );
   }
+}
 function getExportedComponents(): ExportedComponent[] {
   return Object.entries(DesignSystem)
     .flatMap(([name, value]) => {
