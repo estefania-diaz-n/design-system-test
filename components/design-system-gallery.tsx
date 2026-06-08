@@ -58,16 +58,23 @@ class ComponentPreviewBoundary extends Component<ComponentPreviewProps, Componen
       </div>
     );
   }
-}
-
-function getExportedComponents() {
+function getExportedComponents(): ExportedComponent[] {
   return Object.entries(DesignSystem)
-    .filter(([name, value]) => isLikelyComponent(name, value))
-    .map(([name, Component]) => ({
-      Component,
-      example: createComponentExample(name),
-    }))
-    .sort((componentA, componentB) => componentA.example.name.localeCompare(componentB.example.name));
+    .flatMap(([name, value]) => {
+      if (!isLikelyComponent(name, value)) {
+        return [];
+      }
+
+      return [
+        {
+          Component: value,
+          example: createComponentExample(name),
+        },
+      ];
+    })
+    .sort((componentA, componentB) =>
+      componentA.example.name.localeCompare(componentB.example.name)
+    );
 }
 
 function groupByCategory(components: ExportedComponent[]) {
